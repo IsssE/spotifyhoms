@@ -8,17 +8,19 @@ class App extends Component {
     super(props);
     
     this.state = {
-      
-      response: '',
-      buttonStatus: 'Press button to call api'
+      connectionMessage: '',
+      lastApiText: '',
+      storedMessage: ''
     };
     this.callApi = this.callApi.bind(this)
-    this.buttonPressed = this.buttonPressed.bind(this)
+    this.updateLastMessage = this.updateLastMessage.bind(this)
+    this.sendMessage = this.sendMessage.bind(this)
+    this.handleChange = this.handleChange.bind(this)
   }
 
   componentDidMount() {
     this.callApi()
-      .then(res => this.setState({ response: res.express }))
+      .then(res => this.setState({ connectionMessage: res.express }))
       .catch(err => console.log(err));
   }
 
@@ -31,21 +33,36 @@ class App extends Component {
     return body;
   };
 
-  buttonPressed() {
+  sendMessage() {
+    fetch(`${API_URL}/api/changeMessage`, {
+      method: 'POST',
+      body: JSON.stringify({
+          message:this.state.storedMessage
+      }),
+      headers: {"Content-Type":"application/json"}
+    })
+  }
+
+  updateLastMessage() {
     return fetch(`${API_URL}/api/response`)
     .then((response) => response.json())
-    .then(res => this.setState({buttonStatus: res.data}))
+    .then(res => this.setState({lastApiText: res.data}))
   } 
 
-  
+  handleChange(event) {
+    this.setState({storedMessage: event.target.value})
+  }
 
   render() {
     return (
       <div className="App">
-        <button onClick={this.buttonPressed}>Press to API</button>
-        <p>{this.state.response}</p>
-        <p>{this.state.buttonStatus}</p>
-        
+        <button onClick={this.updateLastMessage}>Press to API</button>
+        <p>{this.state.connectionMessage}</p>
+        <p>{this.state.lastApiText}</p>
+        <form>
+          <input type="text" value={this.state.storedMessage} onChange={this.handleChange} /> 
+        </form>
+        <button onClick={this.sendMessage}>Send to API</button>
       </div>
     );
   }
