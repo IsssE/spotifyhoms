@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
+import Login from './Login.js';
 
 const API_URL = 'http://localhost:1337';
 
@@ -56,6 +57,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
+      <div className="test-App">
         <button onClick={this.updateLastMessage}>Press to API</button>
         <p>{this.state.connectionMessage}</p>
         <p>{this.state.lastApiText}</p>
@@ -64,6 +66,13 @@ class App extends Component {
         </form>
         <button onClick={this.sendMessage}>Send to API</button>
       </div>
+
+      <div>
+        <Login/>
+      </div>
+
+      </div>
+
     );
   }
 }
