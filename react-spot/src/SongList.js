@@ -9,15 +9,26 @@ class SongList extends Component {
         }
         return (
             <div>
+                <div> 
+                    {
+                        /*
+                        <button>Add</button> <button>Edit</button> <button>Remove</button> 
+                        */
+                    }
+                    
+                </div>
                 <ol>
                     {
-                        this.props.songList.map((song, i) => {
+                        this.props.songList.map((song) => {
                             return  (
                                 <Song
-                                    key={i}
+                                    key={song.SongId}
+                                    id={song.SongId}
                                     artist={song.artist}
                                     songName={song.songName}
                                     songScore={song.songScore}
+                                    handleUpdateSongScore={this.props.handleUpdateSongScore}
+                                    handleRemoveSong={this.props.handleRemoveSong}
                                 />
                                 );
                         })
@@ -27,5 +38,6 @@ class SongList extends Component {
         )
     }
 }
+
 
 export default SongList;

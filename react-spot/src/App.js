@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import Login from './Login.js';
-import SongManager from './SongManager.js';
+import SongList from './SongList.js';
 
 const API_URL = 'http://localhost:1337';
 
@@ -16,67 +16,77 @@ class App extends Component {
       storedMessage: '',
       */
       songList: [{
+        unique_id: 0,
         artist: 'Art',
         songName: 'Song',
         songScore: 69
       }],
       userName: '',
-      password: ''
+      password: '',
+
+      artist: '',
+      songName: '',
+      songScore: ''
     };
     /*
     this.updateLastMessage = this.updateLastMessage.bind(this)
     this.sendMessage = this.sendMessage.bind(this)
     this.handleChange = this.handleChange.bind(this)    
+    */
+    this.handleUpdateSongScore = this.handleUpdateSongScore.bind(this)
     this.handleUserNameChange = this.handleUserNameChange.bind(this)
     this.handlePasswordChange = this.handlePasswordChange.bind(this)    
-    */
     this.callApi = this.callApi.bind(this)
 
+    this.handleArtistChange = this.handleArtistChange.bind(this)
+    this.handleNameChange = this.handleNameChange.bind(this)
+    this.handleScoreChange = this.handleScoreChange.bind(this)
+    this.handleNewSong = this.handleNewSong.bind(this)
+
   }
-/*
-  componentDidMount() {
-    this.callApi()
-      .then(res => this.setState({ connectionMessage: res.express }))
-      .catch(err => console.log(err));
-  }
-
-
-
-  sendMessage() {
-    fetch(`${API_URL}/api/changeMessage`, {
-      method: 'POST',
-      body: JSON.stringify({
-          message:this.state.storedMessage
-      }),
-      headers: {"Content-Type":"application/json"}
-    })
-  }
-
-  updateLastMessage() {
-    return fetch(`${API_URL}/api/response`)
-    .then((response) => response.json())
-    .then(res => this.setState({lastApiText: res.data}))
-  } 
-
-  handleChange(event) {
-    this.setState({storedMessage: event.target.value})
-  }
-  */
 
   componentDidMount() {
     this.callApi()
-      .then(res => this.setState({ songList: res.songList }))
+      .then(res => this.setState({ songList: res }))
       .catch(err => console.log(err));
   }
   callApi = async () => {
-    const response = await fetch(API_URL+'/api/hello');
+    const response = await fetch(API_URL+'/api/getSongList');
     const body = await response.json();
-
+    console.log(body)
     if (response.status !== 200) throw Error(body.message);
 
     return body;
   };
 
+  
+  handleNewSong() {
+    var body = {
+      artist: this.state.artist,
+      songName: this.state.songName,
+      songScore: this.state.songScore
+    }    
+    
+    fetch(`${API_URL}/api/addSong`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: {"Content-Type":"application/json"}
+    })
+
+    fetch(`${API_URL}/api/getSongList`)
+    .then((response) => response.json())
+    .then(res => this.setState({songList: res}))
+    console.log("ASDSASDASA"+this.state.songList)
+    this.setState(
+      {
+      artist: '',
+      songName: '',
+      songScore: ''
+    })
+
+
+
+  }
 
   handleUserNameChange(event) {
     this.setState({userName: event.target.value})
@@ -86,7 +96,29 @@ class App extends Component {
     this.setState({password: event.target.value})
   }
 
+  handleUpdateSongScore(id, score) {
+    console.log("user changed score: " + score)
+    console.log(id)
+  }
+  handleRemoveSong(id) {
+    console.log("remove: " + id)
+  }
+
+  /*
+  * Temp functions for creating song
+  */
+  handleArtistChange(event) {
+    this.setState({artist: event.target.value})
+  }
+  handleNameChange(event) {
+    this.setState({songName: event.target.value})
+  }
+  handleScoreChange(event) {
+    this.setState({songScore: event.target.value})
+  }
+
   render() {
+    console.log("ASDADS:  "+ this.state.songList)
     return (
       <div className="App">
 
@@ -100,8 +132,18 @@ class App extends Component {
       </div>
       <br/>
         <div>
-          <SongManager
-          songList={this.state.songList}/>
+          <SongList
+          songList={this.state.songList}
+          handleUpdateSongScore={this.handleUpdateSongScore}
+          handleRemoveSong={this.handleRemoveSong}/>
+
+        </div>
+        <div>
+
+            Artist:<input type="text" value={this.state.artist} onChange={this.handleArtistChange} /> <br/>
+            Song:<input type="text" value={this.state.songName} onChange={this.handleNameChange}/>  <br/>
+            Score:<input type="text" value={this.state.songScore} onChange={this.handleScoreChange}/> <br/>
+            <button onClick={this.handleNewSong}>Submit</button>
         </div>
 
       </div>

@@ -3,15 +3,14 @@ var cors = require('cors')
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose')
 
-require('./routes/song.js') 
 
 
-const app = express();
+const server = express();
 //cors sets
-app.use(cors())
+server.use(cors())
 const port = process.env.PORT || 1337;
-app.use(bodyParser.json()); // support json encoded bodies
-app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+server.use(bodyParser.json()); // support json encoded bodies
+server.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 //connect to mongo db (with mogoose)
 mongoose.connect('mongodb://127.0.0.1:27017')
@@ -23,27 +22,18 @@ db.once('open', function() {
     console.log("logged in to database: " + mongoose.Mongoose.name)
 });
 
-var lastMessage = "We have just started, write sometihing to save message"
-
-
 // *** Move these to own files? ***
 //  require('./routes/songs')(server)
 
-app.get('/api/hello', (req, res) => {
-    res.send({express: 'Hello From Express' });
-  });
+require('./routes/songManager.js') (server)
 
-app.get('/api/response', (req, res) => {
-    res.send({data: lastMessage});
-});
-
-app.post('/api/login', (req, res) => {
+server.post('/api/login', (req, res) => {
     
 });
 
-app.post('/api/changeMessage', (req, res) => {
+server.post('/api/changeMessage', (req, res) => {
     lastMessage = req.body.message;
 })
 
- app.listen(port, () => console.log(`Listening on port ${port}`));
+ server.listen(port, () => console.log(`Listening on port ${port}`));
 
