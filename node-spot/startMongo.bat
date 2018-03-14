@@ -1,0 +1,1 @@
+"C:\Program Files\MongoDB\Server\3.6\bin\mongod" --dbpath D:\koodi\ohisha\spotifyhoms\node-spot\data

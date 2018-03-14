@@ -9,6 +9,9 @@
 # production
 /build
 
+# mongodb data files
+/data
+
 # misc
 .DS_Store
 .env.local
