@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import Login from './Login.js';
+import SongManager from './SongManager.js';
 
 const API_URL = 'http://localhost:1337';
 
@@ -9,30 +10,37 @@ class App extends Component {
     super(props);
     
     this.state = {
+      /*
       connectionMessage: '',
       lastApiText: '',
-      storedMessage: ''
+      storedMessage: '',
+      */
+      songList: [{
+        artist: 'Art',
+        songName: 'Song',
+        songScore: 69
+      }],
+      userName: '',
+      password: ''
     };
-    this.callApi = this.callApi.bind(this)
+    /*
     this.updateLastMessage = this.updateLastMessage.bind(this)
     this.sendMessage = this.sendMessage.bind(this)
-    this.handleChange = this.handleChange.bind(this)
-  }
+    this.handleChange = this.handleChange.bind(this)    
+    this.handleUserNameChange = this.handleUserNameChange.bind(this)
+    this.handlePasswordChange = this.handlePasswordChange.bind(this)    
+    */
+    this.callApi = this.callApi.bind(this)
 
+  }
+/*
   componentDidMount() {
     this.callApi()
       .then(res => this.setState({ connectionMessage: res.express }))
       .catch(err => console.log(err));
   }
 
-  callApi = async () => {
-    const response = await fetch('/api/hello');
-    const body = await response.json();
 
-    if (response.status !== 200) throw Error(body.message);
-
-    return body;
-  };
 
   sendMessage() {
     fetch(`${API_URL}/api/changeMessage`, {
@@ -53,23 +61,48 @@ class App extends Component {
   handleChange(event) {
     this.setState({storedMessage: event.target.value})
   }
+  */
+
+  componentDidMount() {
+    this.callApi()
+      .then(res => this.setState({ songList: res.songList }))
+      .catch(err => console.log(err));
+  }
+  callApi = async () => {
+    const response = await fetch(API_URL+'/api/hello');
+    const body = await response.json();
+
+    if (response.status !== 200) throw Error(body.message);
+
+    return body;
+  };
+
+
+  handleUserNameChange(event) {
+    this.setState({userName: event.target.value})
+  }
+  
+  handlePasswordChange(event) {
+    this.setState({password: event.target.value})
+  }
 
   render() {
     return (
       <div className="App">
-      <div className="test-App">
-        <button onClick={this.updateLastMessage}>Press to API</button>
-        <p>{this.state.connectionMessage}</p>
-        <p>{this.state.lastApiText}</p>
-        <form>
-          <input type="text" value={this.state.storedMessage} onChange={this.handleChange} /> 
-        </form>
-        <button onClick={this.sendMessage}>Send to API</button>
-      </div>
 
       <div>
-        <Login/>
+        <Login
+        userName= {this.state.userName}
+        password= {this.state.password}
+        handleUserNameChange= {this.handleUserNameChange}
+        handlePasswordChange={this.handlePasswordChange}
+        />
       </div>
+      <br/>
+        <div>
+          <SongManager
+          songList={this.state.songList}/>
+        </div>
 
       </div>
 
