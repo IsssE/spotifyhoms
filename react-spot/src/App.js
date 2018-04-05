@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import Login from './Login.js';
 import SongList from './SongList.js';
+import Container from './Spotify/Container';
 
 const API_URL = 'http://localhost:1337';
 
@@ -26,7 +27,9 @@ class App extends Component {
 
       artist: '',
       songName: '',
-      songScore: ''
+      songScore: '',
+
+      searchValue: ''
     };
     /*
     this.updateLastMessage = this.updateLastMessage.bind(this)
@@ -43,6 +46,7 @@ class App extends Component {
     this.handleScoreChange = this.handleScoreChange.bind(this)
     this.handleNewSong = this.handleNewSong.bind(this)
 
+    this.handleSearchChange = this.handleSearchChange.bind(this)
   }
 
   componentDidMount() {
@@ -116,6 +120,9 @@ class App extends Component {
   handleScoreChange(event) {
     this.setState({songScore: event.target.value})
   }
+  handleSearchChange(event) {
+    this.setState({searchValue: event.target.value});
+  }
 
   render() {
     console.log("ASDADS:  "+ this.state.songList)
@@ -144,6 +151,12 @@ class App extends Component {
             Song:<input type="text" value={this.state.songName} onChange={this.handleNameChange}/>  <br/>
             Score:<input type="text" value={this.state.songScore} onChange={this.handleScoreChange}/> <br/>
             <button onClick={this.handleNewSong}>Submit</button>
+        </div>
+
+        <div>
+          <Container
+            handleSearchChange={this.handleSearchChange}
+          />
         </div>
 
       </div>

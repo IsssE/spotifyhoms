@@ -12,6 +12,9 @@
 # mongodb data files
 /data
 
+# Tokens for spotify web api
+Tokens.js
+
 # misc
 .DS_Store
 .env.local
