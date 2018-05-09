@@ -47,6 +47,7 @@ class App extends Component {
     this.handleNewSong = this.handleNewSong.bind(this)
 
     this.handleSearchChange = this.handleSearchChange.bind(this)
+    this.handleSpotifyLogin = this.handleSpotifyLogin.bind(this)
   }
 
   componentDidMount() {
@@ -88,8 +89,9 @@ class App extends Component {
       songScore: ''
     })
 
-
-
+  }
+  handleSpotifyLogin(){
+    
   }
 
   handleUserNameChange(event) {
@@ -108,6 +110,7 @@ class App extends Component {
     console.log("remove: " + id)
   }
 
+  
   /*
   * Temp functions for creating song
   */
@@ -154,6 +157,7 @@ class App extends Component {
         </div>
 
         <div>
+          <button onClick ={this.handleSpotifyLogin}> Login with spotify </button>
           <Container
             handleSearchChange={this.handleSearchChange}
           />

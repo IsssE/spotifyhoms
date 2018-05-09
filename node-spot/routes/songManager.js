@@ -1,7 +1,8 @@
 
-var Song = require('../model/song.js')
-var mongoose = require('mongoose')
-
+const fetch = require('node-fetch');
+const Song = require('../model/song.js')
+const mongoose = require('mongoose')
+const authToken = '';
 
 module.exports = function(server) {
 
@@ -79,4 +80,25 @@ module.exports = function(server) {
         // store song to db
     
     });
+
+
+    server.get('/api/searchSong', (req, res) => {
+        let query = req.query;
+        let search = req.body.search;
+        let spotifySearchUrl = 'https://api.spotify.com/v1/search';
+
+        console.log(query.q)
+
+        fetch(spotifySearchUrl, {
+            q: query.q,
+            type: query.type,
+            market: query.market,
+            limit: query.limit,
+            offset: query.offset,
+        })
+        .then( spotifyRes => {
+            console.log(spotifyRes)
+            res.status(200).send(spotifyRes)
+        })
+    }) 
 }
