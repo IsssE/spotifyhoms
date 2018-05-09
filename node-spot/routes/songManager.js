@@ -1,5 +1,6 @@
 
 const fetch = require('node-fetch');
+const { URL, URLSearchParams } = require('url');
 const Song = require('../model/song.js')
 const mongoose = require('mongoose')
 const authToken = '';
@@ -83,21 +84,28 @@ module.exports = function(server) {
 
 
     server.get('/api/searchSong', (req, res) => {
-        let query = req.query;
+        
         let search = req.body.search;
         let spotifySearchUrl = 'https://api.spotify.com/v1/search';
 
-        console.log(query.q)
-
-        fetch(spotifySearchUrl, {
-            q: query.q,
-            type: query.type,
-            market: query.market,
-            limit: query.limit,
-            offset: query.offset,
+        //console.log(req)
+        
+        var url = new URL(spotifySearchUrl)
+        var query = {
+            q: req.query.q,
+            type: req.query.type,
+            market: req.query.market,
+            limit: req.query.limit,
+            offset: req.query.offset,
+        }
+        query = JSON.parse(JSON.stringify(query));
+        url.data = new URLSearchParams(query)
+        //console.log(url)
+        fetch(url, {
+            method: 'GET'
         })
         .then( spotifyRes => {
-            console.log(spotifyRes)
+            //console.log(spotifyRes)
             res.status(200).send(spotifyRes)
         })
     }) 

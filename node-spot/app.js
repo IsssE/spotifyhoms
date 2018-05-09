@@ -7,6 +7,7 @@ var cors = require('cors')
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose')
 var passport = require('passport');
+const cookieSession = require('cookie-session')
 
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -16,6 +17,8 @@ const SpotifyStrategy = require('passport-spotify').Strategy;
 var swig = require('swig');
 var consolidate = require('consolidate');
 
+const app = express();
+
 passport.use(new SpotifyStrategy({
     clientID: tokens.spotifyToken,
     clientSecret: tokens.spotifySecretToken,
@@ -23,47 +26,52 @@ passport.use(new SpotifyStrategy({
   },
   (accessToken, refreshToken, expires_in, profile, done) => {
 
-    console.log(profile)
-
     User.findOne({spotifyId: profile.id}).then((currentUser) => {
       if(currentUser) {
         console.log("user already in database.")
+        done(null, currentUser)
       }
       else {
         new User({
           spotifyId: profile.id,
           displayName: profile.displayName,
+          accessToken: accessToken,
         }).save().then((newUser) => {
-          console.log("new User created" + newUser)
+          console.log("new User created")
+          done(null, newUser)
         })
       }
     }).catch((err) => {
       return handleError(err)
     })
-    console.log(accessToken);
-    
-    return done(null, profile);
   }
 ));
 // Stop error 'Failed to serialize user into session'
 // not sure what it does
-passport.serializeUser(function(user, done) {
-  done(null, user);
+passport.serializeUser((user, done) =>{
+  console.log(user.id)
+  done(null, user.id);
 });
 
-passport.deserializeUser(function(user, done) {
-  done(null, user);
+passport.deserializeUser((id, done) => {
+  User.findById(id).then((user)=> {
+    done(null, user);
+  })
 });
 
-const app = express();
+// Init passport cookies
+app.use(cookieSession({
+  maxAge: 24 * 60 * 60 * 1000, // = 24h
+  keys: [tokens.superSecretToken]
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
 //cors sets
 app.use(cors())
 const port = process.env.PORT || 1337;
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
-
-app.use(passport.initialize());
-app.use(passport.session());
 
 //connect to mongo db (with mogoose)
 mongoose.connect('mongodb://127.0.0.1:27017')
@@ -82,6 +90,7 @@ require('./routes/songManager.js') (app)
 
 app.post('/', (req, res) => {
   console.log("This is a empty site. This is used for spotyfier backend.")
+  console.log(req.user)
 })
 
 app.post('/api/changeMessage', (req, res) => {
@@ -99,9 +108,8 @@ app.get('/auth/spotify',
 app.get('/auth/spotify/callback',
   passport.authenticate('spotify', { failureRedirect: '/auth/spotify' }),
   function(req, res) {
-    console.log("Successfull redirect!")
+    res.send("Successfull login!")
     // Successful authentication, redirect home.
-    res.redirect('/');
   });
 
 function handleError(error) {
