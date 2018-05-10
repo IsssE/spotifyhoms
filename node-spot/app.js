@@ -1,6 +1,6 @@
-
+const fetch = require('node-fetch');
 var tokens = require('./Tokens')
-
+const songManager = require('./routes/songManager.js')
 var User = require('./model/user.js')
 
 var cors = require('cors')
@@ -36,6 +36,7 @@ passport.use(new SpotifyStrategy({
           spotifyId: profile.id,
           displayName: profile.displayName,
           accessToken: accessToken,
+          refreshToken: refreshToken,
         }).save().then((newUser) => {
           console.log("new User created")
           done(null, newUser)
@@ -86,7 +87,8 @@ db.once('open', function() {
 // *** Move these to own files? ***
 //  require('./routes/songs')(app)
 
-require('./routes/songManager.js') (app)
+
+app.use('/api', songManager)
 
 app.post('/', (req, res) => {
   console.log("This is a empty site. This is used for spotyfier backend.")
@@ -98,7 +100,9 @@ app.post('/api/changeMessage', (req, res) => {
 })
 
 app.get('/auth/spotify',
-  passport.authenticate('spotify'),
+  passport.authenticate('spotify', {
+    scope: ["user-read-private", "user-read-email"]
+  }),
   function(req, res){
     console.log("auth")
     // The request will be redirected to spotify for authentication, so this
@@ -108,8 +112,9 @@ app.get('/auth/spotify',
 app.get('/auth/spotify/callback',
   passport.authenticate('spotify', { failureRedirect: '/auth/spotify' }),
   function(req, res) {
-    res.send("Successfull login!")
+    res.send("Successfull login!. Your auth code: " + req.user.accessToken)
     // Successful authentication, redirect home.
+
   });
 
 function handleError(error) {
