@@ -18,6 +18,7 @@ var swig = require('swig');
 var consolidate = require('consolidate');
 
 const app = express();
+app.set('view engine', 'ejs');
 
 passport.use(new SpotifyStrategy({
     clientID: tokens.spotifyToken,
@@ -90,10 +91,20 @@ db.once('open', function() {
 
 app.use('/api', songManager)
 
-app.post('/', (req, res) => {
-  console.log("This is a empty site. This is used for spotyfier backend.")
-  console.log(req.user)
+app.get('/', (req, res) => {
+  res.redirect('/login');
 })
+
+app.get('/login', (req, res) => {
+  res.render('login', { user: req.user });
+});
+
+app.get('/logout', (req, res) => {
+  // handle with passport
+  req.logout();
+  res.redirect('/')
+});
+
 
 app.post('/api/changeMessage', (req, res) => {
     lastMessage = req.body.message;
@@ -112,9 +123,8 @@ app.get('/auth/spotify',
 app.get('/auth/spotify/callback',
   passport.authenticate('spotify', { failureRedirect: '/auth/spotify' }),
   function(req, res) {
-    res.send("Successfull login!. Your auth code: " + req.user.accessToken)
     // Successful authentication, redirect home.
-
+    res.redirect('/login');
   });
 
 function handleError(error) {

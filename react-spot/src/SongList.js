@@ -20,10 +20,11 @@ class SongList extends Component {
                 <ol>
                     {
                         this.props.songList.map((song) => {
+                            
                             return  (
                                 <Song
-                                    key={song.SongId}
-                                    id={song.SongId}
+                                    key={song._id}
+                                    id={song._id}
                                     artist={song.artist}
                                     songName={song.songName}
                                     songScore={song.songScore}

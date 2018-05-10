@@ -3,6 +3,7 @@ import './App.css';
 import Login from './Login.js';
 import SongList from './SongList.js';
 import Container from './Spotify/Container';
+//import {Router, Route} from 'react-router-dom'
 
 const API_URL = 'http://localhost:1337';
 
@@ -17,7 +18,7 @@ class App extends Component {
       storedMessage: '',
       */
       songList: [{
-        unique_id: 0,
+        id: 0,
         artist: 'Art',
         songName: 'Song',
         songScore: 69
@@ -46,8 +47,10 @@ class App extends Component {
     this.handleScoreChange = this.handleScoreChange.bind(this)
     this.handleNewSong = this.handleNewSong.bind(this)
 
-    this.handleSearchChange = this.handleSearchChange.bind(this)
     this.handleSpotifyLogin = this.handleSpotifyLogin.bind(this)
+    
+    this.handleSearchChange = this.handleSearchChange.bind(this)
+    this.handleSearch = this.handleSearch.bind(this)
   }
 
   componentDidMount() {
@@ -58,9 +61,7 @@ class App extends Component {
   callApi = async () => {
     const response = await fetch(API_URL+'/api/getSongList');
     const body = await response.json();
-    console.log(body)
     if (response.status !== 200) throw Error(body.message);
-
     return body;
   };
 
@@ -81,7 +82,6 @@ class App extends Component {
     fetch(`${API_URL}/api/getSongList`)
     .then((response) => response.json())
     .then(res => this.setState({songList: res}))
-    console.log("ASDSASDASA"+this.state.songList)
     this.setState(
       {
       artist: '',
@@ -91,6 +91,32 @@ class App extends Component {
 
   }
   handleSpotifyLogin(){
+    alert("Please go to http://localhost:1337/login")
+  }
+
+  handleSearchChange(event) {
+    this.setState({searchValue: event.target.value});
+  }
+
+  handleSearch() {
+
+    fetch(`${API_URL}/api/searchSong?${this.state.searchValue}`, {
+      method: 'GET',
+      headers: {"Content-Type":"application/json"}
+    })
+    .then((response) => {
+      if(response.status !== 200) {
+        throw response
+      }
+      else {
+        response.json()
+      }
+    } )
+    .then(res => {
+      console.log(res)
+    }).catch ((err) =>{
+      console.log(err)
+    })
     
   }
 
@@ -103,11 +129,38 @@ class App extends Component {
   }
 
   handleUpdateSongScore(id, score) {
-    console.log("user changed score: " + score)
-    console.log(id)
+    let data = {
+      id: id,
+      songScore: score,
+    }
+
+    fetch(`${API_URL}/api/updateSongScore`, {
+      body: JSON.stringify(data),  
+      headers: {
+        'content-type': 'application/json'
+      },
+      method: 'POST'
+    }).then(() =>{
+      this.callApi().then(res => this.setState({ songList: res }))
+      .catch(err => console.log(err));
+    })
   }
   handleRemoveSong(id) {
-    console.log("remove: " + id)
+    let data = {id: id}
+
+    fetch(`${API_URL}/api/removeSong`, {
+      body: JSON.stringify(data),  
+      headers: {
+        'content-type': 'application/json'
+      },
+      method: 'POST'
+    }).catch(err => console.log(err))
+    .then(() => {
+      this.callApi()
+      .then(res => this.setState({ songList: res }))
+      .catch(err => console.log(err));
+    }).catch(err => console.log(err));
+    
   }
 
   
@@ -123,15 +176,14 @@ class App extends Component {
   handleScoreChange(event) {
     this.setState({songScore: event.target.value})
   }
-  handleSearchChange(event) {
-    this.setState({searchValue: event.target.value});
-  }
+
 
   render() {
     console.log("ASDADS:  "+ this.state.songList)
     return (
       <div className="App">
 
+      {/*
       <div>
         <Login
         userName= {this.state.userName}
@@ -140,6 +192,7 @@ class App extends Component {
         handlePasswordChange={this.handlePasswordChange}
         />
       </div>
+      */}
       <br/>
         <div>
           <SongList
@@ -157,9 +210,10 @@ class App extends Component {
         </div>
 
         <div>
-          <button onClick ={this.handleSpotifyLogin}> Login with spotify </button>
+          <button onClick={this.handleSpotifyLogin}> Login with spotify </button>
           <Container
             handleSearchChange={this.handleSearchChange}
+            handleSearch={this.handleSearch}
           />
         </div>
 

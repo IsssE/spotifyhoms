@@ -6,8 +6,10 @@ class Container extends Component {
       super(props);
     }
     render(){
-        return <Search
-        handleSearchChange = {this.props.handleSearchChange}/>;
+        return (<div> <Search
+        handleSearchChange = {this.props.handleSearchChange}/>
+        <button onClick={this.props.handleSearch}> Search Spotify </button>
+        </div>)
     }
 }
 

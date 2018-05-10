@@ -19,7 +19,7 @@ router.get('/getSongList', (req, res) => {
 
 router.post('/removeSong', (req, res) => {
     Song.findOneAndRemove({
-            _id: req.body._id
+            _id: req.body.id
         })
         .then(() => {
             res.send(204)
@@ -31,24 +31,27 @@ router.post('/removeSong', (req, res) => {
 })
 
 router.post('/updateSongScore', (req, res) => {
+    console.log("updatescore")
+    console.log(req.body)
     Song.findOne({
-            _id: req.body._id
+            _id: req.body.id
         })
         .then(song => {
             console.log(song.songScore)
             song.songScore = req.body.songScore + song.songScore;
-            song.save(function (err) {
+            console.log("new songScore: " + song.songScore)
+            song.save( (err) => {
                 if (err) {
                     console.log("error in updating song score")
                     console.log(err);
                 }
-                res.send(200, song)
-                next()
+                res.status(200).send(song)
             })
         })
         .catch(err => {
-            res.send(500, err)
+            res.status(500).send(err)
         })
+        
 })
 
 router.post('/deleteAllLol', (req, res) => {
@@ -58,32 +61,25 @@ router.post('/deleteAllLol', (req, res) => {
 })
 
 router.post('/addSong', (req, res) => {
+    console.log("add" + JSON.stringify(req.body))
     let data = req.body;
-    data.songId = mongoose.Types.ObjectId();
     Song.create(data)
         .then(task => {
-            res.send(204, task)
+            res.status(204).send(task)
             next()
         })
         .catch(err => {
-            res.send(500, err)
+            res.status(500).send(err)
         })
 
-    // check if song already exsists
-
-    // if new song -> create new song
-
-    // store song to db
 
 });
 
 
 router.get('/searchSong', (req, res) => {
 
-
-
     let search = req.body.search;
-    let spotifySearchUrl = 'https://api.spotify.com/v1/search?q=Muse&type=track&limit=3';
+    let spotifySearchUrl = 'https://api.spotify.com/v1/search?q=Muse&type=track&limit=1';
     
 
     let searchValues = `https://api.spotify.com/v1/search?${req.body.q}&type=track&limit=3`
